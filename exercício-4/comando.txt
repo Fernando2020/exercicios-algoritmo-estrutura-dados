@@ -1,0 +1,48 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE alunos (
+	id uuid NOT NULL PRIMARY KEY,
+    nome TEXT NOT NULL,
+    email TEXT NOT NULL,
+	data_criacao timestamp with time zone NOT NULL,
+    data_atualizacao timestamp with time zone
+);
+
+CREATE TABLE disciplinas (
+	id uuid NOT NULL PRIMARY KEY,
+    nome TEXT NOT NULL,
+    professor TEXT NOT NULL,
+	data_criacao timestamp with time zone NOT NULL,
+    data_atualizacao timestamp with time zone
+);
+
+CREATE TABLE matriculas (
+	id uuid NOT NULL PRIMARY KEY,
+    aluno_id uuid,
+    disciplina_id uuid,
+    data_matricula DATE,
+    nota NUMERIC(4,2),
+	data_criacao timestamp with time zone NOT NULL,
+    data_atualizacao timestamp with time zone,
+    CONSTRAINT fk_matriculas_alunos_aluno_id FOREIGN KEY (aluno_id) REFERENCES alunos (id),
+	CONSTRAINT fk_matriculas_disciplinas_disciplina_id FOREIGN KEY (disciplina_id) REFERENCES disciplinas (id)
+);
+
+CREATE INDEX idx_alunos_nome ON alunos (nome);
+CREATE INDEX idx_disciplinas_nome ON disciplinas (nome);
+CREATE INDEX idx_matriculas_aluno ON matriculas (aluno_id);
+CREATE INDEX idx_matriculas_disciplina ON matriculas (disciplina_id);
+
+INSERT INTO alunos (id, nome, email, data_criacao)
+VALUES ('7e1e2218-4855-4b0b-a7ae-4b6a60e79571', 'Fernando', 'fgeraldo11@gmail.com', current_timestamp);
+
+INSERT INTO disciplinas (id, nome, professor, data_criacao)
+VALUES ('25097bab-2060-4f1a-82eb-3829b616d8cd', 'Algoritmo e Estrutura de Dados', 'Paulo', current_timestamp);
+
+INSERT INTO matriculas (id, aluno_id, disciplina_id, data_matricula, nota, data_criacao)
+VALUES (uuid_generate_v4(), '7e1e2218-4855-4b0b-a7ae-4b6a60e79571', '25097bab-2060-4f1a-82eb-3829b616d8cd', '2022-01-01', 8.5, current_timestamp);
+
+SELECT alunos.nome, disciplinas.nome, matriculas.nota
+FROM alunos
+JOIN matriculas ON alunos.id = matriculas.aluno_id
+JOIN disciplinas ON matriculas.disciplina_id = disciplinas.id;
